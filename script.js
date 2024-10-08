@@ -1,137 +1,65 @@
-let tokenizer = null
-let session = null
-
-async function tokenize(text) {
-    if (!tokenizer) {
-        setStatusYellow("Loading Tokenizer...")
-        tokenizer = await loadTokenizer()
-    }
-
-    const tokenized = await tokenizer(text, options = {
-        "truncation": true,
-        "max_length": INPUT_SIZE
-    })
-
-    let inputIds = Array.from(tokenized["input_ids"].data).map(x => parseInt(x))
-    let attentionMask = Array.from(tokenized["attention_mask"].data).map(x => parseInt(x))
-
-    const paddingIds = Array(INPUT_SIZE - inputIds.length).fill(50256)
-    const paddingMask = Array(INPUT_SIZE - attentionMask.length).fill(0)
-
-    inputIds = inputIds.concat(paddingIds)
-    attentionMask = attentionMask.concat(paddingMask)
-
-    return [createInt64Tensor(inputIds), createInt64Tensor(attentionMask)]
-}
-
-async function decode(tokens) {
-    if (!tokenizer) {
-        setStatusYellow("Loading Tokenizer...")
-        tokenizer = await loadTokenizer()
-    }
-
-    const decoded = await tokenizer.decode(tokens)
-
-    return decoded
-}
-
-async function getProbabilities(inputIds, attentionMask) {
-    if (!session) {
-        setStatusYellow("Loading Model...")
-        session = await ort.InferenceSession.create(MODEL_FILE_NAME, {
-            executionProviders: ["wasm", "webgpu"]
-        })
-    }
-
-    // Run inference
-    const output = await session.run({
-        "input-ids": inputIds,
-        "attention-mask": attentionMask
-    })
-    const probabilities = await output["probabilities"].getData()
-
-    return probabilities
-}
-
-async function nBestNextTokens(probabilities, n) {
-    setStatusYellow("Organizing Results...")
-
-    const bestTokens = nLargestIndices(probabilities, n)
-    let bestTokensDecoded = []
-
-    for (let i = 0; i < bestTokens.length; i++) {
-        bestTokensDecoded.push(decode([bestTokens[i]]))
-    }
-
-    bestTokensDecoded = await Promise.all(bestTokensDecoded)
-
-    out = {}
-    for (let i = 0; i < bestTokens.length; i++) {
-        out[bestTokensDecoded[i]] = probabilities[bestTokens[i]]
-    }
-    return out
-}
-
-async function nextNTokenProbs(text, n) {
-    let [inputIds, attentionMask] = await tokenize(text)
-
-    const probabilities = await getProbabilities(inputIds, attentionMask)
-
-    const probMap = await nBestNextTokens(probabilities, n)
-
-    return probMap
-}
-
-// Interface
-
 const body = document.body
 const main = document.getElementById("main")
 const input = document.getElementById("input")
 
+const c = document.getElementById("canvas");
+const ctx = c.getContext("2d");
+
 const TREE_DEPTH = 2
-const TREE_RATE = 3
+const NODE_DEGREE = 3
 
 let globalRoot = null
 
 function updateCanvasSize() {
-    // const width = body.getBoundingClientRect().width
-    // const height = body.getBoundingClientRect().top + body.getBoundingClientRect().height
-    const width = body.scrollWidth
-    const height = body.scrollHeight
-    c.width = width
-    c.height = height
+    c.width = body.scrollWidth
+    c.height = body.scrollHeight
 }
 
 input.addEventListener("keyup", async e => {
+    // Only process enter key
     if (e.key != "Enter") return
 
+    // Clear graph
     main.innerHTML = ""
 
+    // Preprocess
     let cleanedVal = input.value.trim()
 
+    // Create root node and elts
     const rootGroup = Node.createNodeElt(cleanedVal)
     const rootLeft = rootGroup.children[0]
     const root = new Node(1, rootGroup, rootLeft)
 
-    await root.expand(root)
+    // Expand by 1 layer from root
+    await root.expand()
 
+    // Append AFTER awaiting expand to prevent a single root node waiting
     main.appendChild(rootGroup)
 
+    // Draw connections after locations are computed
     window.requestAnimationFrame(() => {
+        // Validate correct size (also a hacky "clear screen")
         updateCanvasSize()
 
+        // Recursively draw connections
         root.drawBetween(ctx)
 
+        // Report done
         setStatusGreen("Done!")
     })
 
+    // Update global root
     globalRoot = root
+    Node.root = root
 })
 
 window.addEventListener("resize", () => {
+    // No global root => No source to redraw
     if (!globalRoot) return
 
+    // Validate correct size (also a hacky "clear screen")
     updateCanvasSize()
 
+    // Recursively draw connections
     globalRoot.drawBetween(ctx)
 })

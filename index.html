@@ -11,22 +11,28 @@
     <canvas id="canvas"></canvas>
     
     <div id="input-box">
-        <input autocomplete="off" type="text" id="input" maxlength="50" placeholder="Python code...">
+        <input autocomplete="off" type="text" id="input" maxlength="50" placeholder="Anything at all...">
 
         <div id="status">Waiting for input</div>
     </div>
 
     <div id="main">
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+    <!-- Config -->
     <script src="config.js"></script>
+    
+    <!-- Model -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
     <script src="utilities.js"></script>
     <script src="tokenizer.js"></script>
+    <script src="model.js"></script>
 
+    <!-- Interface -->
     <script src="tree.js"></script>
     <script src="status.js"></script>
 
+    <!-- Main -->
     <script src="script.js"></script>
 </body>
 </html>

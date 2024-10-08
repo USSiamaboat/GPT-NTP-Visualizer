@@ -11,6 +11,7 @@ async function loadTokenizer() {
 
     const tokenizerJSON = await parseJSON(TOKENIZER_FILE_NAME)
     const configJSON = await parseJSON(TOKENIZER_CONFIG_FILE_NAME)
+    
     const tokenizer = new Transformers.PreTrainedTokenizer(tokenizerJSON, configJSON)
 
     return tokenizer;
