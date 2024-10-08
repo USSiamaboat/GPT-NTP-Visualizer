@@ -59,7 +59,7 @@ async function nBestNextTokens(probabilities, n) {
     }
 
     bestTokensDecoded = await Promise.all(bestTokensDecoded)
-    
+
     out = {}
     for (let i = 0; i < bestTokens.length; i++) {
         out[bestTokensDecoded[i]] = probabilities[bestTokens[i]]
@@ -76,3 +76,75 @@ async function nextNTokenProbs(text, n) {
 
     return probMap
 }
+
+document.addEventListener("mousemove", e => {
+    // ctx.moveTo(0, 0)
+    // // ctx.lineTo(e.clientX, e.clientY)
+    // ctx.stroke()
+})
+
+// Interface
+
+const main = document.getElementById("main")
+const input = document.getElementById("input")
+
+const TREE_DEPTH = 2
+const TREE_RATE = 3
+
+let asdf;
+
+async function expand(n) {
+    const thing = await nextNTokenProbs(n.elt.innerText, 3)
+
+    for (const key of Object.keys(thing)) {
+        const group = Node.createNodeElt(n.elt.innerText + key)
+        const left = group.children[0]
+        const node = new Node(thing[key], group, left)
+
+        n.nexts.push(node)
+
+        n.group.children[1].appendChild(group)
+    }
+}
+
+input.addEventListener("keyup", async e => {
+    if (e.key != "Enter") return
+
+    main.innerHTML = ""
+    c.width = c.clientWidth;
+    c.height = c.clientHeight;
+
+    let cleanedVal = input.value.trim()
+
+    const rootGroup = Node.createNodeElt(cleanedVal)
+    const rootLeft = rootGroup.children[0]
+    const root = new Node(1, rootGroup, rootLeft)
+
+    main.appendChild(rootGroup)
+
+    const thing = await nextNTokenProbs(cleanedVal, 3)
+
+    for (const key of Object.keys(thing)) {
+        const group = Node.createNodeElt(cleanedVal + key)
+        const left = group.children[0]
+        const node = new Node(thing[key], group, left)
+
+        root.nexts.push(node)
+
+        root.group.children[1].appendChild(group)
+    }
+
+    for (const next of root.nexts) {
+        expand(next)
+    }
+
+    window.requestAnimationFrame(() => {
+        root.drawBetween()
+
+        for (const x of root.nexts) {
+            x.drawBetween()
+        }
+    })
+
+    asdf = root
+})

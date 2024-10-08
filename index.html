@@ -8,11 +8,21 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="input-box">
+        <input autocomplete="off" type="text" id="input" maxlength="50" placeholder="Python code...">
+    </div>
+
+    <div id="main">
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
     <script src="config.js"></script>
     <script src="utilities.js"></script>
     <script src="tokenizer.js"></script>
+
+    <script src="tree.js"></script>
 
     <script src="script.js"></script>
 </body>
