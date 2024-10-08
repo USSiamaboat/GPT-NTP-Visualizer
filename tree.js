@@ -5,6 +5,7 @@ class Node {
         this.group = group
         this.elt = left
         this.nexts = []
+        this.expanded = false
     }
 
     static root;
@@ -72,6 +73,10 @@ class Node {
 
     // Expand
     async expand() {
+        // Do not expand if already expanded
+        if (this.expanded) return
+        this.expanded = true
+
         // Generate child node content
         const bestTokenProbPairs = await forward(this.elt.innerText, NODE_DEGREE)
 
