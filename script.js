@@ -3,6 +3,7 @@ let session = null
 
 async function tokenize(text) {
     if (!tokenizer) {
+        setStatusYellow("Loading Tokenizer...")
         tokenizer = await loadTokenizer()
     }
 
@@ -25,6 +26,7 @@ async function tokenize(text) {
 
 async function decode(tokens) {
     if (!tokenizer) {
+        setStatusYellow("Loading Tokenizer...")
         tokenizer = await loadTokenizer()
     }
 
@@ -35,6 +37,7 @@ async function decode(tokens) {
 
 async function getProbabilities(inputIds, attentionMask) {
     if (!session) {
+        setStatusYellow("Loading Model...")
         session = await ort.InferenceSession.create(MODEL_FILE_NAME, {
             executionProviders: ["wasm", "webgpu"]
         })
@@ -51,6 +54,8 @@ async function getProbabilities(inputIds, attentionMask) {
 }
 
 async function nBestNextTokens(probabilities, n) {
+    setStatusYellow("Organizing Results...")
+
     const bestTokens = nLargestIndices(probabilities, n)
     let bestTokensDecoded = []
 
@@ -120,8 +125,6 @@ input.addEventListener("keyup", async e => {
     const rootLeft = rootGroup.children[0]
     const root = new Node(1, rootGroup, rootLeft)
 
-    main.appendChild(rootGroup)
-
     const thing = await nextNTokenProbs(cleanedVal, 3)
 
     for (const key of Object.keys(thing)) {
@@ -139,11 +142,10 @@ input.addEventListener("keyup", async e => {
     }
 
     window.requestAnimationFrame(() => {
+        main.appendChild(rootGroup)
         root.drawBetween()
 
-        for (const x of root.nexts) {
-            x.drawBetween()
-        }
+        setStatusGreen("Done!")
     })
 
     asdf = root

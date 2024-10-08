@@ -48,7 +48,7 @@ class Node {
 
             const x1 = this.rx()
             const y1 = this.y()
-            const x2 = other.lx()
+            const x2 = other.lx() + 10
             const y2 = other.y()
 
             console.log(x1, y1, x2, y2)
@@ -57,7 +57,7 @@ class Node {
             ctx.lineTo(x2, y2)
             ctx.stroke()
 
-            // other.drawBetween()
+            other.drawBetween()
         }
     }
 }

@@ -15,7 +15,30 @@ canvas {
 
 #input-box {
     margin: 50px auto;
+    margin-bottom: 10px;;
     width: max-content;
+}
+
+#status {
+    padding: 10px 30px;
+    border-radius: 10px;
+    border: 3px solid rgb(169, 141, 0);
+    background: rgb(255, 235, 138);
+    margin: 0 auto;
+    margin-top: 15px;
+    width: max-content;
+    font-size: 16px;
+    opacity: 1;
+}
+
+#status.good {
+    border: 3px solid rgb(0, 139, 37);
+    background: rgb(149, 255, 178);
+}
+
+#status.fade-out {
+    transition: 1s linear;
+    opacity: 0;
 }
 
 #input {
@@ -23,10 +46,13 @@ canvas {
     width: 500px;
     padding: 10px;
     border-radius: 10px;
+    border: 2px solid black;
 }
 
 #main {
     margin: 0px 30px;
+    display: grid;
+    justify-items: center;
 }
 
 .group {
@@ -53,4 +79,5 @@ canvas {
     grid-auto-flow: row;
     gap: 10px;
     grid-area: rights;
+    margin: 10px 0;
 }
