@@ -84,6 +84,7 @@ async function nextNTokenProbs(text, n) {
 
 // Interface
 
+const body = document.body
 const main = document.getElementById("main")
 const input = document.getElementById("input")
 
@@ -92,12 +93,19 @@ const TREE_RATE = 3
 
 let globalRoot = null
 
+function updateCanvasSize() {
+    // const width = body.getBoundingClientRect().width
+    // const height = body.getBoundingClientRect().top + body.getBoundingClientRect().height
+    const width = body.scrollWidth
+    const height = body.scrollHeight
+    c.width = width
+    c.height = height
+}
+
 input.addEventListener("keyup", async e => {
     if (e.key != "Enter") return
 
     main.innerHTML = ""
-    c.width = c.clientWidth
-    c.height = c.clientHeight
 
     let cleanedVal = input.value.trim()
 
@@ -107,9 +115,12 @@ input.addEventListener("keyup", async e => {
 
     await root.expand(root)
 
+    main.appendChild(rootGroup)
+
     window.requestAnimationFrame(() => {
-        main.appendChild(rootGroup)
-        root.drawBetween()
+        updateCanvasSize()
+
+        root.drawBetween(ctx)
 
         setStatusGreen("Done!")
     })
@@ -120,8 +131,7 @@ input.addEventListener("keyup", async e => {
 window.addEventListener("resize", () => {
     if (!globalRoot) return
 
-    c.width = c.clientWidth
-    c.height = c.clientHeight
+    updateCanvasSize()
 
-    globalRoot.drawBetween()
+    globalRoot.drawBetween(ctx)
 })

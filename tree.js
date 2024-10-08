@@ -31,31 +31,40 @@ class Node {
     }
 
     lx() {
-        return Math.floor(this.elt.getBoundingClientRect().left) + 0.5
+        const offset = document.body.getBoundingClientRect().left
+        return Math.floor(this.elt.getBoundingClientRect().left - offset) + 0.5
     }
 
     rx() {
-        return Math.floor(this.elt.getBoundingClientRect().right) + 0.5
+        const offset = document.body.getBoundingClientRect().left
+        return Math.floor(this.elt.getBoundingClientRect().right - offset) + 0.5
     }
 
     y() {
-        return Math.floor(this.elt.getBoundingClientRect().y) + Math.floor(this.elt.getBoundingClientRect().height/2) + 0.5
+        const offset = document.body.getBoundingClientRect().top
+        console.log(offset)
+        return Math.floor(this.elt.getBoundingClientRect().top - offset) + Math.floor(this.elt.getBoundingClientRect().height/2) + 0.5
     }
 
-    drawBetween() {
+    drawBetween(ctx) {
         for (const other of this.nexts) {
             ctx.lineWidth = Math.pow(10, other.val)
 
             const x1 = this.rx()
             const y1 = this.y()
-            const x2 = other.lx() + 10
+            const x2 = other.lx()
             const y2 = other.y()
 
+            const xMid = (x1 + x2)/2
+
+            ctx.beginPath()
             ctx.moveTo(x1, y1)
-            ctx.lineTo(x2, y2)
+
+            ctx.bezierCurveTo(xMid, y1, xMid, y2, x2, y2)
+            // ctx.lineTo(x2, y2)
             ctx.stroke()
 
-            other.drawBetween()
+            other.drawBetween(ctx)
         }
     }
 
@@ -75,10 +84,9 @@ class Node {
                 await node.expand(root)
     
                 window.requestAnimationFrame(() => {
-                    c.width = c.clientWidth
-                    c.height = c.clientHeight
+                    updateCanvasSize()
     
-                    root.drawBetween()
+                    root.drawBetween(ctx)
     
                     setStatusGreen("Done!")
                 })
