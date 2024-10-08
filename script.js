@@ -82,12 +82,6 @@ async function nextNTokenProbs(text, n) {
     return probMap
 }
 
-document.addEventListener("mousemove", e => {
-    // ctx.moveTo(0, 0)
-    // // ctx.lineTo(e.clientX, e.clientY)
-    // ctx.stroke()
-})
-
 // Interface
 
 const main = document.getElementById("main")
