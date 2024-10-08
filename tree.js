@@ -51,13 +51,38 @@ class Node {
             const x2 = other.lx() + 10
             const y2 = other.y()
 
-            console.log(x1, y1, x2, y2)
-
             ctx.moveTo(x1, y1)
             ctx.lineTo(x2, y2)
             ctx.stroke()
 
             other.drawBetween()
+        }
+    }
+
+    async expand(root) {
+        const thing = await nextNTokenProbs(this.elt.innerText, 3)
+
+        for (const key of Object.keys(thing)) {
+            const group = Node.createNodeElt(this.elt.innerText + key)
+            const left = group.children[0]
+            const node = new Node(thing[key], group, left)
+
+            this.nexts.push(node)
+
+            this.group.children[1].appendChild(group)
+
+            left.onclick = async () => {
+                await node.expand(root)
+    
+                window.requestAnimationFrame(() => {
+                    c.width = c.clientWidth
+                    c.height = c.clientHeight
+    
+                    root.drawBetween()
+    
+                    setStatusGreen("Done!")
+                })
+            }
         }
     }
 }

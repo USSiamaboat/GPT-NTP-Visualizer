@@ -64,6 +64,10 @@ canvas {
     align-items: center;
 }
 
+.group:hover > .left {
+    background: #DDDDDD;
+}
+
 .left {
     grid-area: left;
     padding: 10px;
@@ -72,6 +76,7 @@ canvas {
     height: min-content;
     width: max-content;
     background: white;
+    cursor: pointer;
 }
 
 .rights {
